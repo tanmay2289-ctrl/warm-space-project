@@ -178,16 +178,19 @@ function Questionnaire() {
           </section>
         </div>
 
-        <div className="mt-xl flex justify-end border-t border-outline-variant pt-lg">
+        <div className="mt-xl flex items-center justify-end gap-md border-t border-outline-variant pt-lg">
+          {error && <p className="text-body-sm text-error">{error}</p>}
           <button
             type="button"
-            onClick={() => navigate({ to: "/connect" })}
-            className="flex items-center gap-sm rounded-lg bg-secondary px-lg py-sm font-mono text-data-point text-on-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--color-secondary)_30%,transparent)] transition-all hover:opacity-90 active:scale-95"
+            onClick={next}
+            disabled={saving}
+            className="flex items-center gap-sm rounded-lg bg-secondary px-lg py-sm font-mono text-data-point text-on-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--color-secondary)_30%,transparent)] transition-all hover:opacity-90 active:scale-95 disabled:opacity-60"
           >
-            Next: Connect Platforms
+            {saving ? "Saving..." : "Next: Connect Platforms"}
             <Icon name="arrow_forward" />
           </button>
         </div>
+
 
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-secondary opacity-10 blur-[100px]" />
       </main>
