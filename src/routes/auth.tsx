@@ -89,7 +89,7 @@ function AuthPage() {
         <span className="font-display text-headline-md font-bold text-secondary">SkillSync</span>
       </Link>
 
-      <main className="glass-panel relative w-full max-w-md overflow-hidden rounded-xl p-lg">
+      <main className="glass-panel relative w-full max-w-[440px] overflow-hidden rounded-xl p-lg">
         <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-secondary opacity-10 blur-[100px]" />
 
         <h1 className="text-center text-headline-md">
