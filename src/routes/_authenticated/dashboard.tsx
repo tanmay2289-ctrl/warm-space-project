@@ -232,7 +232,7 @@ function Dashboard() {
                 <button
                   type="button"
                   className={`w-full shrink-0 rounded-lg px-6 py-2 font-mono text-label-caps transition-colors focus:opacity-100 group-hover:opacity-100 md:w-auto md:opacity-0 ${
-                    job.primary
+                    index === 0
                       ? "bg-secondary text-on-secondary-container hover:bg-secondary-fixed"
                       : "border border-secondary text-secondary hover:bg-secondary/10"
                   }`}
