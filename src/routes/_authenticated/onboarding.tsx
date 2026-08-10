@@ -30,9 +30,40 @@ function Questionnaire() {
   const [tags, setTags] = useState<string[]>(["Remote", "Fintech", "Startup"]);
   const [draft, setDraft] = useState("");
   const [level, setLevel] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyProfile()
+      .then((profile) => {
+        if (cancelled) return;
+        if (profile.interests.length) setSelected(profile.interests);
+        if (profile.focus_tags.length) setTags(profile.focus_tags);
+        if (profile.experience_level) setLevel(profile.experience_level);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const toggle = (f: string) =>
     setSelected((s) => (s.includes(f) ? s.filter((x) => x !== f) : [...s, f]));
+
+  const next = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      await saveQuestionnaire({ data: { interests: selected, focusTags: tags, level } });
+      navigate({ to: "/connect" });
+    } catch {
+      setError("Could not save your answers. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-md">
