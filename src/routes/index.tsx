@@ -1,163 +1,103 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Icon } from "@/components/Icon";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SkillSync — Tailor Your Experience" },
+      { title: "SkillSync — AI Skill Profiles & Job Matches" },
       {
         name: "description",
         content:
-          "Tell SkillSync about your background so our AI can match you with the right engineering opportunities.",
+          "SkillSync analyzes your GitHub, resume and portfolio with AI to build a live skill profile and match you with the right engineering roles.",
       },
-      { property: "og:title", content: "SkillSync — Tailor Your Experience" },
+      { property: "og:title", content: "SkillSync — AI Skill Profiles & Job Matches" },
       {
         property: "og:description",
-        content: "Set your fields of interest, focus tags and experience level to get matched.",
+        content:
+          "Connect your platforms, let AI map your skills to market trends and get personalized job matches.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Questionnaire,
+  component: Landing,
 });
 
-const FIELDS = ["Frontend", "Backend", "Mobile", "AI/ML", "DevOps", "Data Science"];
+const HIGHLIGHTS = [
+  {
+    icon: "hub",
+    title: "Connect your signals",
+    copy: "GitHub, resume, LeetCode and portfolio in one profile.",
+  },
+  {
+    icon: "smart_toy",
+    title: "AI skill mapping",
+    copy: "Gemini turns your activity into a scored skill profile.",
+  },
+  {
+    icon: "work",
+    title: "Matched roles",
+    copy: "Personalized job matches ranked against market demand.",
+  },
+];
 
-function Questionnaire() {
-  const navigate = useNavigate();
-  const [selected, setSelected] = useState<string[]>(["Backend", "AI/ML"]);
-  const [tags, setTags] = useState<string[]>(["Remote", "Fintech", "Startup"]);
-  const [draft, setDraft] = useState("");
-  const [level, setLevel] = useState("");
+function Landing() {
+  const [signedIn, setSignedIn] = useState(false);
 
-  const toggle = (f: string) =>
-    setSelected((s) => (s.includes(f) ? s.filter((x) => x !== f) : [...s, f]));
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
+  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-md">
-      <main className="glass-panel relative w-full max-w-2xl overflow-hidden rounded-xl p-lg shadow-[0_20px_25px_-5px_rgba(0,0,0,0.5)]">
-        <div className="mb-xl flex items-center justify-between">
-          <div className="font-mono text-label-caps uppercase text-primary opacity-80">
-            Step 1 of 3
-          </div>
-          <div className="flex h-1 w-32 overflow-hidden rounded-full bg-surface-container">
-            <div className="h-full w-1/3 bg-secondary shadow-[0_0_8px_var(--color-secondary)]" />
-          </div>
-        </div>
+    <div className="relative flex min-h-screen flex-col overflow-hidden">
+      <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-secondary opacity-10 blur-[120px]" />
 
-        <header className="mb-xl text-center">
-          <h1 className="mb-sm text-headline-md">Tailor Your Experience</h1>
-          <p className="text-body-md text-on-surface-variant">
-            Tell us about your background so we can match you with the right opportunities.
+      <header className="relative z-10 flex h-16 w-full items-center justify-between px-md md:px-lg">
+        <div className="flex items-center gap-sm">
+          <Icon name="memory" className="text-secondary" />
+          <span className="font-display text-headline-md font-bold text-secondary">SkillSync</span>
+        </div>
+        <Link
+          to={signedIn ? "/dashboard" : "/auth"}
+          className="rounded-lg border border-outline-variant px-md py-2 font-mono text-label-caps text-on-surface transition-colors hover:border-secondary hover:text-secondary"
+        >
+          {signedIn ? "DASHBOARD" : "SIGN IN"}
+        </Link>
+      </header>
+
+      <main className="relative z-10 mx-auto flex w-full max-w-container-max flex-grow flex-col items-center justify-center gap-xl px-md py-xl text-center md:px-lg">
+        <div className="flex max-w-2xl flex-col items-center gap-md">
+          <span className="rounded-full border border-secondary/30 bg-secondary/10 px-md py-1 font-mono text-label-caps text-secondary">
+            AI CAREER ENGINE
+          </span>
+          <h1 className="text-display-lg">Your skills, synced with the market.</h1>
+          <p className="text-body-lg text-on-surface-variant">
+            SkillSync reads your engineering footprint, scores your strengths and surfaces the roles
+            you are actually ready for.
           </p>
-        </header>
-
-        <div className="space-y-xl">
-          <section>
-            <div className="mb-md flex items-center gap-sm">
-              <Icon name="code" filled className="text-secondary" />
-              <h2 className="text-headline-sm">Fields of Interest</h2>
-            </div>
-            <div className="flex flex-wrap gap-sm">
-              {FIELDS.map((f) => {
-                const on = selected.includes(f);
-                return (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => toggle(f)}
-                    className={
-                      on
-                        ? "glow-active rounded-full border border-secondary bg-surface-variant px-md py-sm font-mono text-data-point text-secondary transition-colors active:scale-95"
-                        : "rounded-full border border-outline-variant bg-surface-container px-md py-sm font-mono text-data-point text-on-surface transition-colors hover:bg-surface-variant active:scale-95"
-                    }
-                  >
-                    {f}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section>
-            <div className="mb-md flex items-center gap-sm">
-              <Icon name="sell" filled className="text-secondary" />
-              <h2 className="text-headline-sm">Custom Focus</h2>
-            </div>
-            <div className="glass-panel flex w-full flex-wrap gap-sm rounded-lg p-sm transition-colors focus-within:border-secondary">
-              {tags.map((t) => (
-                <span
-                  key={t}
-                  className="flex items-center gap-xs rounded-full border border-outline-variant bg-surface-container-high px-3 py-1"
-                >
-                  <span className="font-mono text-data-point text-on-surface">{t}</span>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${t}`}
-                    onClick={() => setTags((prev) => prev.filter((x) => x !== t))}
-                    className="flex items-center transition-colors hover:text-error"
-                  >
-                    <Icon name="close" className="text-[16px]" />
-                  </button>
-                </span>
-              ))}
-              <input
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && draft.trim()) {
-                    e.preventDefault();
-                    setTags((prev) => [...new Set([...prev, draft.trim()])]);
-                    setDraft("");
-                  }
-                }}
-                className="min-w-[150px] flex-grow border-none bg-transparent text-body-sm text-on-surface outline-none placeholder:text-on-surface-variant"
-                placeholder="Type and press enter..."
-                type="text"
-              />
-            </div>
-          </section>
-
-          <section>
-            <div className="mb-md flex items-center gap-sm">
-              <Icon name="school" filled className="text-secondary" />
-              <h2 className="text-headline-sm">Experience Level</h2>
-            </div>
-            <div className="relative">
-              <select
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
-                aria-label="Experience level"
-                className="w-full cursor-pointer appearance-none rounded-lg border border-outline-variant bg-surface-container px-md py-sm text-body-md text-on-surface transition-colors focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
-              >
-                <option disabled value="">
-                  Select your level
-                </option>
-                <option value="student">Student</option>
-                <option value="junior">Junior</option>
-                <option value="mid">Mid-Level</option>
-                <option value="senior">Senior</option>
-              </select>
-              <Icon
-                name="expand_more"
-                className="pointer-events-none absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant"
-              />
-            </div>
-          </section>
-        </div>
-
-        <div className="mt-xl flex justify-end border-t border-outline-variant pt-lg">
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/connect" })}
-            className="flex items-center gap-sm rounded-lg bg-secondary px-lg py-sm font-mono text-data-point text-on-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--color-secondary)_30%,transparent)] transition-all hover:opacity-90 active:scale-95"
+          <Link
+            to={signedIn ? "/onboarding" : "/auth"}
+            className="mt-md flex items-center gap-sm rounded-lg bg-secondary px-lg py-3 font-mono text-data-point text-on-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--color-secondary)_30%,transparent)] transition-all hover:scale-[1.02] active:scale-95"
           >
-            Next: Connect Platforms
+            {signedIn ? "Continue setup" : "Get started free"}
             <Icon name="arrow_forward" />
-          </button>
+          </Link>
         </div>
 
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-secondary opacity-10 blur-[100px]" />
+        <div className="grid w-full max-w-4xl grid-cols-1 gap-md md:grid-cols-3">
+          {HIGHLIGHTS.map((h) => (
+            <div
+              key={h.title}
+              className="glass-panel flex flex-col items-start gap-sm rounded-xl p-md text-left"
+            >
+              <Icon name={h.icon} filled className="text-secondary" />
+              <h2 className="text-headline-sm">{h.title}</h2>
+              <p className="text-body-sm text-on-surface-variant">{h.copy}</p>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );

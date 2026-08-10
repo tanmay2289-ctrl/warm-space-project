@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { analyzeProfile } from "@/lib/analysis.functions";
 
-export const Route = createFileRoute("/analyzing")({
+export const Route = createFileRoute("/_authenticated/analyzing")({
   head: () => ({
     meta: [
       { title: "Analyzing Profile — SkillSync" },
@@ -33,9 +34,11 @@ function Analyzing() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState(-1);
   const [fading, setFading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timers = PHASES.map((p, i) =>
+    let cancelled = false;
+    const timers = PHASES.slice(0, 3).map((p, i) =>
       setTimeout(() => {
         setFading(true);
         setTimeout(() => {
@@ -44,15 +47,33 @@ function Analyzing() {
         }, 300);
       }, p.delay),
     );
-    const done = setTimeout(() => navigate({ to: "/dashboard" }), 10500);
+
+    const started = Date.now();
+    analyzeProfile()
+      .then(() => {
+        if (cancelled) return;
+        const wait = Math.max(0, 6500 - (Date.now() - started));
+        setTimeout(() => {
+          if (cancelled) return;
+          setPhase(3);
+          setTimeout(() => !cancelled && navigate({ to: "/dashboard" }), 1200);
+        }, wait);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError("The AI analysis could not be completed. Showing your last saved profile.");
+        setTimeout(() => !cancelled && navigate({ to: "/dashboard" }), 2500);
+      });
+
     return () => {
+      cancelled = true;
       timers.forEach(clearTimeout);
-      clearTimeout(done);
     };
   }, [navigate]);
 
-  const statusText = phase < 0 ? "Initializing AI Core..." : PHASES[phase]!.text;
+  const statusText = error ?? (phase < 0 ? "Initializing AI Core..." : PHASES[phase]!.text);
   const complete = phase === 3;
+
   const logs = [
     { label: "> _Data Ingestion", state: phase >= 0 ? "DONE" : "PENDING", active: true },
     {

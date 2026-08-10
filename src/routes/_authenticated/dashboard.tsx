@@ -1,7 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Icon } from "@/components/Icon";
+import { supabase } from "@/integrations/supabase/client";
+import { getMyProfile, type AnalysisResult } from "@/lib/profile.functions";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Your Skill Dashboard — SkillSync" },
@@ -20,30 +24,40 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-const TREND_SCORES = [
-  { label: "GitHub Activity", value: 92 },
-  { label: "Resume Match", value: 85 },
-  { label: "Interview Readiness", value: 78 },
-];
+const FALLBACK: AnalysisResult = {
+  summary:
+    "Run an analysis to let the AI engine turn your interests, focus tags and connected platforms into a live skill profile.",
+  skills: [
+    { name: "Python", highlight: true },
+    { name: "System Design", highlight: true },
+    { name: "AWS", highlight: true },
+    { name: "React", highlight: false },
+    { name: "Docker", highlight: false },
+    { name: "PostgreSQL", highlight: false },
+  ],
+  scores: [
+    { label: "GitHub Activity", value: 92 },
+    { label: "Resume Match", value: 85 },
+    { label: "Interview Readiness", value: 78 },
+  ],
+  jobs: [
+    {
+      match: 94,
+      title: "Senior Backend Engineer",
+      company: "CloudScale Inc.",
+      demand: "+15% demand",
+      tags: ["Python", "AWS", "Microservices"],
+    },
+    {
+      match: 88,
+      title: "Systems Architect",
+      company: "Nexus Data Systems",
+      demand: "+8% demand",
+      tags: ["System Design", "Distributed Systems"],
+    },
+  ],
+};
 
-const JOBS = [
-  {
-    match: 94,
-    title: "Senior Backend Engineer",
-    company: "CloudScale Inc.",
-    demand: "+15% demand",
-    tags: ["Python", "AWS", "Microservices"],
-    primary: true,
-  },
-  {
-    match: 88,
-    title: "Systems Architect",
-    company: "Nexus Data Systems",
-    demand: "+8% demand",
-    tags: ["System Design", "Distributed Systems"],
-    primary: false,
-  },
-];
 
 function MatchRing({ value, dim }: { value: number; dim?: boolean }) {
   return (
@@ -76,48 +90,69 @@ function MatchRing({ value, dim }: { value: number; dim?: boolean }) {
 }
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [data, setData] = useState<AnalysisResult>(FALLBACK);
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyProfile()
+      .then((profile) => {
+        if (cancelled) return;
+        setName(profile.display_name);
+        if (profile.analysis) setData(profile.analysis);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-md">
-        <Icon name="person" className="text-on-surface-variant" />
+        <div className="flex items-center gap-sm text-on-surface-variant">
+          <Icon name="person" />
+          <span className="hidden font-mono text-label-caps sm:inline">{name ?? "Signed in"}</span>
+        </div>
         <div className="font-display text-headline-md font-bold text-secondary">SkillSync</div>
         <button
           type="button"
-          aria-label="Notifications"
-          className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high active:opacity-80"
+          onClick={signOut}
+          aria-label="Sign out"
+          className="flex items-center gap-xs rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high active:opacity-80"
         >
-          <Icon name="notifications" />
+          <Icon name="logout" />
         </button>
       </header>
+
 
       <main className="mx-auto flex w-full max-w-container-max flex-grow flex-col gap-lg px-md py-md pb-32 md:gap-xl md:px-lg md:py-xl">
         <section className="glass-panel flex flex-col gap-md rounded-xl p-md md:p-lg">
           <h2 className="text-headline-xs text-secondary md:text-headline-sm">
             Skill Profile Summary
           </h2>
-          <p className="text-body-md text-on-surface-variant">
-            Based on your recent repository activity and resume update, our AI engine has
-            highlighted strong backend architecture capabilities. We've adjusted your primary
-            profile towards Senior Backend Engineering roles, prioritizing cloud infrastructure and
-            system design.
-          </p>
+          <p className="text-body-md text-on-surface-variant">{data.summary}</p>
           <div className="mt-sm flex flex-wrap gap-sm">
-            {[
-              { t: "Python", hi: true },
-              { t: "System Design", hi: true },
-              { t: "AWS", hi: true },
-              { t: "React", hi: false },
-              { t: "Docker", hi: false },
-              { t: "PostgreSQL", hi: false },
-            ].map((s) => (
+            {data.skills.map((s) => (
+
               <span
-                key={s.t}
+                key={s.name}
                 className={`rounded-full border bg-surface-container-high px-3 py-1 font-mono text-label-caps text-on-background ${
-                  s.hi ? "border-tertiary/50" : "border-outline-variant"
+                  s.highlight ? "border-tertiary/50" : "border-outline-variant"
                 }`}
               >
-                {s.t}
+                {s.name}
               </span>
+
             ))}
           </div>
         </section>
@@ -127,7 +162,7 @@ function Dashboard() {
             Platform Trend Scores
           </h3>
           <div className="hide-scrollbar flex snap-x gap-md overflow-x-auto pb-xs">
-            {TREND_SCORES.map((s) => (
+            {data.scores.map((s) => (
               <div
                 key={s.label}
                 className="glass-panel ai-glow-border flex w-48 shrink-0 snap-start flex-col gap-xs rounded-lg p-md"
@@ -164,12 +199,13 @@ function Dashboard() {
           </div>
 
           <div className="flex flex-col gap-md">
-            {JOBS.map((job) => (
+            {data.jobs.map((job, index) => (
               <div
-                key={job.title}
+                key={`${job.title}-${job.company}`}
                 className="glass-panel ai-glow-border group flex flex-col items-start gap-md rounded-xl p-md md:flex-row md:items-center"
               >
-                <MatchRing value={job.match} dim={!job.primary} />
+                <MatchRing value={job.match} dim={index > 0} />
+
                 <div className="flex flex-grow flex-col gap-xs">
                   <div className="flex items-start justify-between">
                     <div>
@@ -196,7 +232,7 @@ function Dashboard() {
                 <button
                   type="button"
                   className={`w-full shrink-0 rounded-lg px-6 py-2 font-mono text-label-caps transition-colors focus:opacity-100 group-hover:opacity-100 md:w-auto md:opacity-0 ${
-                    job.primary
+                    index === 0
                       ? "bg-secondary text-on-secondary-container hover:bg-secondary-fixed"
                       : "border border-secondary text-secondary hover:bg-secondary/10"
                   }`}
