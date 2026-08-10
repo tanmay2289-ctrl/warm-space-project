@@ -220,11 +220,13 @@ function ConnectPlatforms() {
         </div>
         <button
           type="button"
-          onClick={() => navigate({ to: "/analyzing" })}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-8 py-3 font-display text-headline-sm text-on-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--color-secondary)_40%,transparent)] transition-all hover:scale-[1.02] active:scale-95 md:w-auto"
+          onClick={analyze}
+          disabled={saving}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-8 py-3 font-display text-headline-sm text-on-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--color-secondary)_40%,transparent)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-60 md:w-auto"
         >
           <Icon name="analytics" />
           Analyze My Profile
+
         </button>
       </div>
     </div>
