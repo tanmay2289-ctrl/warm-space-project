@@ -32,9 +32,10 @@ export const analyzeProfile = createServerFn({ method: "POST" })
     const { error: saveError } = await context.supabase.from("profiles").upsert(
       {
         id: context.userId,
-        analysis: result,
+        analysis: JSON.parse(JSON.stringify(result)),
         analyzed_at: new Date().toISOString(),
       },
+
       { onConflict: "id" },
     );
     if (saveError) throw new Error(saveError.message);
