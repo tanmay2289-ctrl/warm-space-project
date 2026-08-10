@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { analyzeProfile } from "@/lib/analysis.functions";
 
 export const Route = createFileRoute("/_authenticated/analyzing")({
   head: () => ({
