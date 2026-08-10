@@ -199,12 +199,13 @@ function Dashboard() {
           </div>
 
           <div className="flex flex-col gap-md">
-            {JOBS.map((job) => (
+            {data.jobs.map((job, index) => (
               <div
-                key={job.title}
+                key={`${job.title}-${job.company}`}
                 className="glass-panel ai-glow-border group flex flex-col items-start gap-md rounded-xl p-md md:flex-row md:items-center"
               >
-                <MatchRing value={job.match} dim={!job.primary} />
+                <MatchRing value={job.match} dim={index > 0} />
+
                 <div className="flex flex-grow flex-col gap-xs">
                   <div className="flex items-start justify-between">
                     <div>
