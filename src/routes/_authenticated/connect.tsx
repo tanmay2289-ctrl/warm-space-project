@@ -65,10 +65,42 @@ const PLATFORMS: {
 function ConnectPlatforms() {
   const navigate = useNavigate();
   const [platforms, setPlatforms] = useState(PLATFORMS);
+  const [saving, setSaving] = useState(false);
   const connectedCount = platforms.filter((p) => p.status === "connected").length;
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyProfile()
+      .then((profile) => {
+        const saved = profile.connected_platforms;
+        if (cancelled || !saved || !Object.keys(saved).length) return;
+        setPlatforms((prev) => prev.map((p) => (saved[p.name] ? { ...p, status: saved[p.name]! } : p)));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const setStatus = (name: string, status: Status) =>
     setPlatforms((prev) => prev.map((p) => (p.name === name ? { ...p, status } : p)));
+
+  const analyze = async () => {
+    setSaving(true);
+    try {
+      await savePlatforms({
+        data: {
+          platforms: Object.fromEntries(platforms.map((p) => [p.name, p.status])),
+        },
+      });
+    } catch {
+      // continue to analysis even if the save fails
+    } finally {
+      setSaving(false);
+      navigate({ to: "/analyzing" });
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen flex-col">
