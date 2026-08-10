@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Your Skill Dashboard — SkillSync" },

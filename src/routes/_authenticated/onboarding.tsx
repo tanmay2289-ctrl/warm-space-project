@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
       { title: "SkillSync — Tailor Your Experience" },

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 
-export const Route = createFileRoute("/analyzing")({
+export const Route = createFileRoute("/_authenticated/analyzing")({
   head: () => ({
     meta: [
       { title: "Analyzing Profile — SkillSync" },
