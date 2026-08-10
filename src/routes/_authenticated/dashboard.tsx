@@ -162,7 +162,7 @@ function Dashboard() {
             Platform Trend Scores
           </h3>
           <div className="hide-scrollbar flex snap-x gap-md overflow-x-auto pb-xs">
-            {TREND_SCORES.map((s) => (
+            {data.scores.map((s) => (
               <div
                 key={s.label}
                 className="glass-panel ai-glow-border flex w-48 shrink-0 snap-start flex-col gap-xs rounded-lg p-md"
