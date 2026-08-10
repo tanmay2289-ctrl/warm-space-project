@@ -90,19 +90,50 @@ function MatchRing({ value, dim }: { value: number; dim?: boolean }) {
 }
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [data, setData] = useState<AnalysisResult>(FALLBACK);
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyProfile()
+      .then((profile) => {
+        if (cancelled) return;
+        setName(profile.display_name);
+        if (profile.analysis) setData(profile.analysis);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-md">
-        <Icon name="person" className="text-on-surface-variant" />
+        <div className="flex items-center gap-sm text-on-surface-variant">
+          <Icon name="person" />
+          <span className="hidden font-mono text-label-caps sm:inline">{name ?? "Signed in"}</span>
+        </div>
         <div className="font-display text-headline-md font-bold text-secondary">SkillSync</div>
         <button
           type="button"
-          aria-label="Notifications"
-          className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high active:opacity-80"
+          onClick={signOut}
+          aria-label="Sign out"
+          className="flex items-center gap-xs rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high active:opacity-80"
         >
-          <Icon name="notifications" />
+          <Icon name="logout" />
         </button>
       </header>
+
 
       <main className="mx-auto flex w-full max-w-container-max flex-grow flex-col gap-lg px-md py-md pb-32 md:gap-xl md:px-lg md:py-xl">
         <section className="glass-panel flex flex-col gap-md rounded-xl p-md md:p-lg">
