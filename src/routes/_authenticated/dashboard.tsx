@@ -140,21 +140,10 @@ function Dashboard() {
           <h2 className="text-headline-xs text-secondary md:text-headline-sm">
             Skill Profile Summary
           </h2>
-          <p className="text-body-md text-on-surface-variant">
-            Based on your recent repository activity and resume update, our AI engine has
-            highlighted strong backend architecture capabilities. We've adjusted your primary
-            profile towards Senior Backend Engineering roles, prioritizing cloud infrastructure and
-            system design.
-          </p>
+          <p className="text-body-md text-on-surface-variant">{data.summary}</p>
           <div className="mt-sm flex flex-wrap gap-sm">
-            {[
-              { t: "Python", hi: true },
-              { t: "System Design", hi: true },
-              { t: "AWS", hi: true },
-              { t: "React", hi: false },
-              { t: "Docker", hi: false },
-              { t: "PostgreSQL", hi: false },
-            ].map((s) => (
+            {data.skills.map((s) => (
+
               <span
                 key={s.t}
                 className={`rounded-full border bg-surface-container-high px-3 py-1 font-mono text-label-caps text-on-background ${
