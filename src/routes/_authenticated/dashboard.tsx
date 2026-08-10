@@ -145,13 +145,14 @@ function Dashboard() {
             {data.skills.map((s) => (
 
               <span
-                key={s.t}
+                key={s.name}
                 className={`rounded-full border bg-surface-container-high px-3 py-1 font-mono text-label-caps text-on-background ${
-                  s.hi ? "border-tertiary/50" : "border-outline-variant"
+                  s.highlight ? "border-tertiary/50" : "border-outline-variant"
                 }`}
               >
-                {s.t}
+                {s.name}
               </span>
+
             ))}
           </div>
         </section>
