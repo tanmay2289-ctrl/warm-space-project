@@ -1,5 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Icon } from "@/components/Icon";
+import { supabase } from "@/integrations/supabase/client";
+import { getMyProfile, type AnalysisResult } from "@/lib/profile.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
