@@ -24,30 +24,40 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-const TREND_SCORES = [
-  { label: "GitHub Activity", value: 92 },
-  { label: "Resume Match", value: 85 },
-  { label: "Interview Readiness", value: 78 },
-];
+const FALLBACK: AnalysisResult = {
+  summary:
+    "Run an analysis to let the AI engine turn your interests, focus tags and connected platforms into a live skill profile.",
+  skills: [
+    { name: "Python", highlight: true },
+    { name: "System Design", highlight: true },
+    { name: "AWS", highlight: true },
+    { name: "React", highlight: false },
+    { name: "Docker", highlight: false },
+    { name: "PostgreSQL", highlight: false },
+  ],
+  scores: [
+    { label: "GitHub Activity", value: 92 },
+    { label: "Resume Match", value: 85 },
+    { label: "Interview Readiness", value: 78 },
+  ],
+  jobs: [
+    {
+      match: 94,
+      title: "Senior Backend Engineer",
+      company: "CloudScale Inc.",
+      demand: "+15% demand",
+      tags: ["Python", "AWS", "Microservices"],
+    },
+    {
+      match: 88,
+      title: "Systems Architect",
+      company: "Nexus Data Systems",
+      demand: "+8% demand",
+      tags: ["System Design", "Distributed Systems"],
+    },
+  ],
+};
 
-const JOBS = [
-  {
-    match: 94,
-    title: "Senior Backend Engineer",
-    company: "CloudScale Inc.",
-    demand: "+15% demand",
-    tags: ["Python", "AWS", "Microservices"],
-    primary: true,
-  },
-  {
-    match: 88,
-    title: "Systems Architect",
-    company: "Nexus Data Systems",
-    demand: "+8% demand",
-    tags: ["System Design", "Distributed Systems"],
-    primary: false,
-  },
-];
 
 function MatchRing({ value, dim }: { value: number; dim?: boolean }) {
   return (
